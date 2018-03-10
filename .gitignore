@@ -1,0 +1,7 @@
+# the structure directory of Pycharm
+.idea
+
+# the file of mac os
+*.DS_Store
+
+*.pyc
