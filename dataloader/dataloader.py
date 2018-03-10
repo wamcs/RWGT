@@ -17,12 +17,12 @@ def get_train_data():
 
     train = datasets.ImageFolder(traindir, transform)
 
-    train_loader = torch.utils.data.DataLoader(train, batch_size=512, shuffle=True, num_workers=4)
+    train_loader = torch.utils.data.DataLoader(train, batch_size=128, shuffle=True, num_workers=2)
 
     return train_loader
 
 def get_test_data():
     valdir = os.path.join(path, 'val')
     val = datasets.ImageFolder(valdir, transform)
-    val_loader = torch.utils.data.DataLoader(val, batch_size=512, shuffle=True, num_workers=4)
+    val_loader = torch.utils.data.DataLoader(val, batch_size=128, shuffle=True, num_workers=2)
     return val_loader
