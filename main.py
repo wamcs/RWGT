@@ -3,8 +3,11 @@ import torch
 from dataloader import dataloader
 import torch.backends.cudnn as cudnn
 import os
+import numpy as np
+import torchvision.models as models
 
 from net import VGG
+from weight import extract_weight as ew
 
 # @parameter
 # net: the architecture of training network
@@ -68,42 +71,65 @@ def test(net, testloader, cost, use_cuda):
     print("Loss {}, Acc {}".format(test_loss / len(testloader), 100 * correct / total))
     print("-" * 10)
 
+# def main():
+#     use_cuda = torch.cuda.is_available()
+#     net = VGG.vgg19()
+#     net_root = './netWeight/'
+#     print(net)
+#
+#     if not os.path.exists(net_root):
+#         os.mkdir(path=net_root)
+#     path = net_root +'vgg19'
+#
+#     if use_cuda:
+#         net.cuda()
+#         net = torch.nn.DataParallel(net, device_ids=range(1))
+#         cudnn.benchmark = True
+#
+#     cost = torch.nn.Softmax().cuda()
+#
+#     if os.path.exists(path):
+#         net.load_state_dict(torch.load(path))
+#     else:
+#         optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+#         n_epochs = 250
+#         train_set= dataloader.get_train_data()
+#         for i in range(n_epochs):
+#             train(net=net,
+#                   dataloader=train_set,
+#                   cost=cost,
+#                   optimizer=optimizer,
+#                   epoch=i,
+#                   n_epochs=n_epochs,
+#                   use_cuda=use_cuda)
+#         torch.save(net.state_dict(), path)
+#         print('successfully save weights')
+#
+#     test_set = dataloader.get_test_data()
+#     test(net=net,testloader=test_set,cost=cost,use_cuda=use_cuda)
+
 def main():
-    use_cuda = torch.cuda.is_available()
-    net = VGG.vgg19()
-    net_root = './netWeight/'
-    print(net)
+    net = models.vgg19(pretrained=True)
+    weight_list = ew.extract_weight(net)
+    index,size = ew.attr('D','conv4_1')
+    rand_weight_G = ew.generate_random_weight(weight_list, index=index, means=0, std=0.015)
+    rand_weight_B = ew.generate_random_weight(weight_list, index=index, means=0, std=1)
 
-    if not os.path.exists(net_root):
-        os.mkdir(path=net_root)
-    path = net_root +'vgg19'
+    U, s, V = np.linalg.svd(ew.D_matrix(weight_list[index], size, 0), full_matrices=True)
+    print(U.shape, V.shape, s.shape)
+    np.savetxt("../data/matrixA.csv", s, delimiter=",")
 
-    if use_cuda:
-        net.cuda()
-        net = torch.nn.DataParallel(net, device_ids=range(1))
-        cudnn.benchmark = True
+    U, s, V = np.linalg.svd(ew.D_matrix(rand_weight_G, size, 0), full_matrices=True)
+    print(U.shape, V.shape, s.shape)
+    np.savetxt("../data/matrixB.csv", s, delimiter=",")
 
-    cost = torch.nn.Softmax().cuda()
+    U, s, V = np.linalg.svd(ew.D_matrix(rand_weight_B, size, 0), full_matrices=True)
+    print(U.shape, V.shape, s.shape)
+    np.savetxt("../data/matrixC.csv", s, delimiter=",")
 
-    if os.path.exists(path):
-        net.load_state_dict(torch.load(path))
-    else:
-        optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-        n_epochs = 250
-        train_set= dataloader.get_train_data()
-        for i in range(n_epochs):
-            train(net=net,
-                  dataloader=train_set,
-                  cost=cost,
-                  optimizer=optimizer,
-                  epoch=i,
-                  n_epochs=n_epochs,
-                  use_cuda=use_cuda)
-        torch.save(net.state_dict(), path)
-        print('successfully save weights')
-
-    test_set = dataloader.get_test_data()
-    test(net=net,testloader=test_set,cost=cost,use_cuda=use_cuda)
+    # np.savetxt("../data/matrixA.csv", ew.D_matrix(weight_list[index], size, 0), delimiter=",")
+    # np.savetxt("../data/matrixB.csv", ew.D_matrix(rand_weight_G, size, 0), delimiter=",")
+    # np.savetxt("../data/matrixC.csv", ew.D_matrix(rand_weight_B, size, 0), delimiter=",")
 
 
 if __name__ == '__main__':

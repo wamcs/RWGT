@@ -27,6 +27,7 @@ class VGG(nn.Module):
             nn.Linear(4096, 4096),
             self.activation_function(),
             nn.Linear(4096, 1000)
+
         )
 
     def generate_layer(self, type):
