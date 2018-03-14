@@ -9,6 +9,7 @@ import torchvision.models as models
 from net import VGG
 from weight import extract_weight as ew
 
+
 # @parameter
 # net: the architecture of training network
 # dataloader: the set of data which comes from load.py in package dataload
@@ -45,6 +46,7 @@ def train(net, dataloader, cost, optimizer, epoch, n_epochs, use_cuda):
     print("Loss {}".format(running_loss / len(dataloader)))
     print("-" * 10)
 
+
 # @parameter
 # net: the architecture of training network
 # testloader: the set of data which comes from load.py in package dataload
@@ -70,6 +72,7 @@ def test(net, testloader, cost, use_cuda):
         total += y_test.size(0)
     print("Loss {}, Acc {}".format(test_loss / len(testloader), 100 * correct / total))
     print("-" * 10)
+
 
 # def main():
 #     use_cuda = torch.cuda.is_available()
@@ -111,25 +114,21 @@ def test(net, testloader, cost, use_cuda):
 def main():
     net = models.vgg19(pretrained=True)
     weight_list = ew.extract_weight(net)
-    index,size = ew.attr('D','conv4_1')
-    rand_weight_G = ew.generate_random_weight(weight_list, index=index, means=0, std=0.015)
-    rand_weight_B = ew.generate_random_weight(weight_list, index=index, means=0, std=1)
+    layer_name = 'conv3_1'
+    index, size = ew.attr('D', layer_name)
+    path = '.data/'+layer_name+'_'
+    rand_weight_G = ew.generate_normal_random_weight(weight_list, index=index, means=0, std=0.015)
+    rand_weight_B = ew.generate_normal_random_weight(weight_list, index=index, means=0, std=1)
+    rand_weight_Uniform1 = ew.generate_uniform_random_weight(weight_list, index=index, range=0.04)
+    rand_weight_Uniform2 = ew.generate_uniform_random_weight(weight_list, index=index, range=0.4)
+    rand_weight_Uniform3 = ew.generate_uniform_random_weight(weight_list, index=index, range=0.004)
 
-    U, s, V = np.linalg.svd(ew.D_matrix(weight_list[index], size, 0), full_matrices=True)
-    print(U.shape, V.shape, s.shape)
-    np.savetxt("../data/matrixA.csv", s, delimiter=",")
-
-    U, s, V = np.linalg.svd(ew.D_matrix(rand_weight_G, size, 0), full_matrices=True)
-    print(U.shape, V.shape, s.shape)
-    np.savetxt("../data/matrixB.csv", s, delimiter=",")
-
-    U, s, V = np.linalg.svd(ew.D_matrix(rand_weight_B, size, 0), full_matrices=True)
-    print(U.shape, V.shape, s.shape)
-    np.savetxt("../data/matrixC.csv", s, delimiter=",")
-
-    # np.savetxt("../data/matrixA.csv", ew.D_matrix(weight_list[index], size, 0), delimiter=",")
-    # np.savetxt("../data/matrixB.csv", ew.D_matrix(rand_weight_G, size, 0), delimiter=",")
-    # np.savetxt("../data/matrixC.csv", ew.D_matrix(rand_weight_B, size, 0), delimiter=",")
+    np.savetxt(path+"matrixA.csv", ew.D_matrix(weight_list[index], size, 0), delimiter=",")
+    np.savetxt(path+"matrixB.csv", ew.D_matrix(rand_weight_G, size, 0), delimiter=",")
+    np.savetxt(path+"matrixC.csv", ew.D_matrix(rand_weight_B, size, 0), delimiter=",")
+    np.savetxt(path+"matrixD.csv", ew.D_matrix(rand_weight_Uniform1, size, 0), delimiter=",")
+    np.savetxt(path+"matrixE.csv", ew.D_matrix(rand_weight_Uniform2, size, 0), delimiter=",")
+    np.savetxt(path+"matrixF.csv", ew.D_matrix(rand_weight_Uniform3, size, 0), delimiter=",")
 
 
 if __name__ == '__main__':

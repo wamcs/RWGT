@@ -32,7 +32,7 @@ def extract_weight(model):
 # index: the index of appointed layer
 # means: means of normal distribution
 # std:  The standard deviation of normal distribution
-def generate_random_weight(weight_list, index, means, std):
+def generate_normal_random_weight(weight_list, index, means, std):
     temp = weight_list[index]
     size = 1
     for i in temp.size():
@@ -41,6 +41,14 @@ def generate_random_weight(weight_list, index, means, std):
     ran_weight = Variable(ran_weight.view(list(temp.size())))
     return ran_weight
 
+def generate_uniform_random_weight(weight_list, index, range):
+    temp = weight_list[index]
+    size = 1
+    for i in temp.size():
+        size = size * i
+    ran_weight = (torch.rand(size) + torch.rand(size)*(-1))*range
+    ran_weight = Variable(ran_weight.view(list(temp.size())))
+    return ran_weight
 
 # generate the 2d fourier transform base
 # let f is the 1d fourier transform base, which comes from fft(eye(n)) / sqrt(n)
@@ -132,16 +140,19 @@ def D_matrix(weight, size, channel=0):
     for item in weight:
         temp = item[channel]
         part_D_matrix = part_D(temp, size, base)
-        D.append(part_D_matrix)
+        # D.append(part_D_matrix)
+        D.append(np.matrix(part_D_matrix))
 
-    result = []
-    for i, valueI in enumerate(D):
-        for j, valueJ in enumerate(D):
-            if j < i:
-                continue
-            result.append(np.matrix(valueI * valueJ))
+    # result = []
+    # for i, valueI in enumerate(D):
+    #     for j, valueJ in enumerate(D):
+    #         if j < i:
+    #             continue
+    #         result.append(np.matrix(valueI * valueJ))
 
-    temp = np.concatenate(tuple(result), axis=0)
+    # temp = np.concatenate(tuple(result), axis=0)
+    # print(temp.shape)
+    temp = np.concatenate(tuple(D),axis=0)
     print(temp.shape)
     return temp
 
