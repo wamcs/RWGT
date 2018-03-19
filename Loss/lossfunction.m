@@ -23,6 +23,7 @@ for i = 1:length(imgDataDir)
         temp = reshape(temp,1,[]);
         temp = transpose(temp);
         para = two_dim_base\temp;
+        para
         save_list = [save_list;para];
     end
     csvwrite(saveDir,save_list);
