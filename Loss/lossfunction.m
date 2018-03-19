@@ -15,7 +15,8 @@ for i = 1:length(imgDataDir)
     imgDir = dir([imgDataPath imgDataDir(i).name '/*.jpg']);
     saveDir = [save_path imgDataDir(i).name '.csv'];
     save_list = [];
-    for j =1:length(imgDir)                 % ??????
+    %for j =1:length(imgDir)                 % ??????
+    for j = 1:15
         img = imread([imgDataPath imgDataDir(i).name '/' imgDir(j).name]);
         img = imresize(img,[s,s]);
         img = rgb2gray(img);
@@ -23,7 +24,7 @@ for i = 1:length(imgDataDir)
         temp = reshape(temp,1,[]);
         temp = transpose(temp);
         para = two_dim_base\temp;
-        para
+        1
         save_list = [save_list;para];
     end
     csvwrite(saveDir,save_list);
