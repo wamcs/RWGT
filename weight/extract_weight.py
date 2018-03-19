@@ -98,10 +98,13 @@ def generate_conv_matrix(conv_kernel, size):
         result.append(np.roll(part_circulant_block, shift=k * size, axis=1))
 
     temp = np.concatenate(tuple(result), axis=0)
+
+    u,s,v = np.linalg.svd(temp)
+    print(s)
     print(temp.shape)
     print('finish')
     print('-' * 10)
-    return np.matrix(temp)
+    return np.matrix(temp),np.matrix(s)
 
 
 def test_is_dial(matrix):
@@ -122,7 +125,8 @@ def test_is_dial(matrix):
 def part_D(conv_kernel, size, base):
     print('-' * 10)
     print('begin to generate part D matrix')
-    conv = generate_conv_matrix(conv_kernel=conv_kernel, size=size)
+    conv,s = generate_conv_matrix(conv_kernel=conv_kernel, size=size)
+    print(np.dot(s,base))
     D = np.dot(base.I, conv)
     D = np.dot(D, base)
     # print(D)
