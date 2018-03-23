@@ -5,5 +5,5 @@
 *.DS_Store
 
 *.pyc
-data/
+result/
 dtd/
